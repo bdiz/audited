@@ -97,10 +97,17 @@ describe Audited::Adapters::ActiveRecord::Audit, :adapter => :active_record do
   describe "reconstruct_attributes" do
 
     it "should work with the old way of storing just the new value" do
-      audits = Audited.audit_class.reconstruct_attributes([Audited.audit_class.new(:audited_changes => {'attribute' => 'value'})])
+      audits = Audited.audit_class.reconstruct_attributes([Audited.audit_class.new(:auditable_type => "Models::ActiveRecord::User", :audited_changes => {'attribute' => 'value'})])
       expect(audits['attribute']).to eq('value')
     end
 
+  end
+
+  describe "version_method" do
+    it "can be customized" do
+      user = Models::ActiveRecord::CustomVersionMethodUser.create! :name => 'Set Version Number'
+      expect(user.audits.first.revision.audit_version).to eq(1)
+    end
   end
 
   describe "audited_classes" do

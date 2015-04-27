@@ -210,5 +210,12 @@ module Models
 
       audited
     end
+
+    class CustomVersionMethodUser
+      include ::MongoMapper::Document
+      key :name, String
+      audited :version_method => :audit_version
+    end
+
   end
 end

@@ -18,6 +18,11 @@ module Models
       audited :comment_required => true
     end
 
+    class CustomVersionMethodUser < ::ActiveRecord::Base
+      self.table_name = :users
+      audited :version_method => :audit_version
+    end
+
     class AccessibleAfterDeclarationUser < ::ActiveRecord::Base
       self.table_name = :users
       audited

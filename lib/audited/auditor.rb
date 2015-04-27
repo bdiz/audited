@@ -16,6 +16,11 @@ module Audited
 
     CALLBACKS = [:audit_create, :audit_update, :audit_destroy]
 
+    class << self
+      attr_accessor :default_version_method
+    end
+    self.default_version_method = :version
+
     module ClassMethods
       # == Configuration options
       #
@@ -72,7 +77,11 @@ module Audited
         set_callback :audit, :after, :after_audit, :if => lambda { self.respond_to?(:after_audit) }
         set_callback :audit, :around, :around_audit, :if => lambda { self.respond_to?(:around_audit) }
 
-        attr_accessor :version
+        class << self
+          attr_accessor :version_method
+        end
+        self.version_method = options.fetch(:version_method, Auditor.default_version_method)
+        attr_accessor self.version_method
 
         extend Audited::Auditor::AuditedClassMethods
         include Audited::Auditor::AuditedInstanceMethods
@@ -177,11 +186,11 @@ module Audited
 
       def audits_to(version = nil)
         if version == :previous
-          version = if self.version
-                      self.version - 1
+          version = if self.send(self.class.version_method)
+                      self.send(self.class.version_method) - 1
                     else
                       previous = audits.descending.offset(1).first
-                      previous ? previous.version : 1
+                      previous ? previous.send(:version) : 1
                     end
         end
         audits.to_version(version)

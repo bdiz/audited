@@ -428,6 +428,17 @@ describe Audited::Auditor, :adapter => :active_record do
     end
   end
 
+  describe "version_method" do
+    it "can be customized" do
+      u = Models::ActiveRecord::CustomVersionMethodUser.create(:name => 'Brandon', :username => 'brandon')
+      u.update_attributes :name => 'Foobar'
+
+      revision = u.revision(2)
+      expect(Models::ActiveRecord::CustomVersionMethodUser.version_method).to eq(:audit_version)
+      expect(revision.audit_version).to eq(2)
+    end
+  end
+
   describe "comment required" do
 
     describe "on create" do
